@@ -1,4 +1,4 @@
-import { NotificationTypesEnum } from "./typeEnum";
+import { NotificationTypesEnum } from "../../enum/typeEnum";
 
 export interface INotification {
   id: number;
@@ -8,5 +8,6 @@ export interface INotification {
 
 export interface NotificationContextType {
   notifications: INotification[];
-  handleAddNotification: (message: string, type: NotificationTypesEnum) => void;
+  addNotification: (message: string, type: NotificationTypesEnum) => void;
+  removeNotification: (id: number) => void;
 }

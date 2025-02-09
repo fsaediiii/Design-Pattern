@@ -1,16 +1,10 @@
-import {
-  FC,
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { FC, ReactNode, createContext, useEffect, useState } from "react";
 import { INotification, NotificationContextType } from "./types";
+import { observerNotification } from "../../observer/notificationService";
 
-const NotificationContext = createContext<NotificationContextType | undefined>(
-  undefined
-);
+export const NotificationContext = createContext<
+  NotificationContextType | undefined
+>(undefined);
 
 export const NotificationProvider: FC<{ children: ReactNode }> = ({
   children,
@@ -18,26 +12,27 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({
   const [notifications, setNotifications] = useState<INotification[]>([]);
 
   useEffect(() => {
-    const handleNewNotification = (notification: INotification) => {
-      setNotifications((prevState) => ({ ...prevState, notification }));
+    const updateNotifications = (notification: INotification[]) => {
+      setNotifications(notification);
     };
 
-    notificationService.subscribe(handleNewNotification);
+    observerNotification.subscribe(updateNotifications);
     return () => {
-      notificationService.unsubscribe(handleNewNotification);
+      observerNotification.unsubscribe(updateNotifications);
     };
   }, []);
 
   return (
     <NotificationContext.Provider
-      value={{ notifications, handleAddNotification }}
+      value={{
+        notifications: notifications,
+        addNotification:
+          observerNotification.addNotification.bind(observerNotification),
+        removeNotification:
+          observerNotification.removeNotification.bind(observerNotification),
+      }}
     >
       {children}
     </NotificationContext.Provider>
   );
-};
-
-export const useNotification = () => {
-  const context = useContext(NotificationContext);
-  return context;
 };
